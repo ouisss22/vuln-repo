@@ -3,17 +3,17 @@ name: Semgrep Scan
 on:
   push:
     branches: [main]
-  workflow_dispatch:
 
 jobs:
   semgrep:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-      - uses: returntocorp/semgrep-action@v1
+      - name: Run Semgrep
+        uses: returntocorp/semgrep-action@v1
         with:
-          config: >-
-            p/ci
-        env:
-          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
+          config: "p/default"  # or your custom rules
+          publishToken: ${{ secrets.SEMGREP_APP_TOKEN }}
+          
