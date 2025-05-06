@@ -4,17 +4,23 @@ on:
   push:
     branches:
       - main
-  pull_request:
 
 jobs:
-  security:
+  snyk:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       - name: Run Snyk to check for vulnerabilities
         uses: snyk/actions/node@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          command: test
+          args: test --json > snyk-results.json
+
+      - name: Send results to Tines
+        run: |
+          curl -X POST https://divine-water-4101.tines.com/webhook/new-story-for-ouissame-zaghdad-idemia-com/7e46fe1c5f87552a8907ca0094f89a34 \
+          -H "Content-Type: application/json" \
+          -d @snyk-results.json
