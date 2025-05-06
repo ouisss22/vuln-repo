@@ -1,0 +1,35 @@
+name: Snyk Scan & Send to Tines
+
+on:
+  push:
+    branches:
+      - main  # or your main development branch
+  workflow_dispatch:
+
+jobs:
+  snyk:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node (if needed for Snyk)
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18'
+
+      - name: Install Snyk CLI
+        run: npm install -g snyk
+
+      - name: Authenticate with Snyk
+        run: snyk auth ${{ secrets.SNYK_TOKEN }}
+
+      - name: Run Snyk and output JSON
+        run: snyk test --json > snyk_output.json
+
+      - name: Send Results to Tines Webhook
+        run: |
+          curl -X POST ${{ secrets.TINES_WEBHOOK_URL }} \
+          -H "Content-Type: application/json" \
+          -d @snyk_output.json
